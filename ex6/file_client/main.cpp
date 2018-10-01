@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
      fprintf(stderr,"usage %s hostname port default: %d\n", argv[0], PORT);
      exit(0);
   }
-  if( argv[2] != NULL){
+  if( argc == 3){
     portno = atoi(argv[2]);
   }
   else{
@@ -52,12 +52,9 @@ int main(int argc, char *argv[])
   bcopy((char *)server->h_addr,
        (char *)&serv_addr.sin_addr.s_addr,
        server->h_length);
-  serv_addr.sin_port = htons(portno)
-  printf("hello");
+  serv_addr.sin_port = htons(portno);
   if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
       error("ERROR connecting");
-
-      printf("hello");
   printf("Please enter the message: ");
   bzero(buffer,BUFSIZE);
   readTextTCP(buffer, BUFSIZE-1, 1);
