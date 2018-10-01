@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
       error("ERROR connecting");
   printf("Please enter the message: ");
   bzero(buffer,BUFSIZE);
-  readTextTCP(buffer, BUFSIZE-1, 1);
+  fgets(buffer,255,stdin);
   writeTextTCP(sockfd, buffer);
   bzero(buffer,256);
   n = read(sockfd,buffer,255);
