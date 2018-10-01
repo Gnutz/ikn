@@ -15,7 +15,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <iknlib.h>
+#include "../lib/iknlib.hpp"
 
 using namespace std;
 
@@ -24,6 +24,51 @@ void receiveFile(string fileName, int socketfd);
 int main(int argc, char *argv[])
 {
 	// TO DO Your own code
+  int sockfd, portno, n;
+  struct sockaddr_in serv_addr;
+  struct hostent *server;
+
+  char buffer[BUFSIZE];
+  if (argc < 2) {
+     fprintf(stderr,"usage %s hostname port default: %d\n", argv[0], PORT);
+     exit(0);
+  }
+  if( argv[2] != NULL){
+    portno = atoi(argv[2]);
+  }
+  else{
+    portno = PORT;
+  }
+  sockfd = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockfd < 0)
+      error("ERROR opening socket");
+  server = gethostbyname(argv[1]);
+  if (server == NULL) {
+      fprintf(stderr,"ERROR, no such host\n");
+      exit(0);
+  }
+  bzero((char *) &serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  bcopy((char *)server->h_addr,
+       (char *)&serv_addr.sin_addr.s_addr,
+       server->h_length);
+  serv_addr.sin_port = htons(portno)
+  printf("hello");
+  if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0)
+      error("ERROR connecting");
+
+      printf("hello");
+  printf("Please enter the message: ");
+  bzero(buffer,BUFSIZE);
+  readTextTCP(buffer, BUFSIZE-1, 1);
+  writeTextTCP(sockfd, buffer);
+  bzero(buffer,256);
+  n = read(sockfd,buffer,255);
+  if (n < 0)
+       error("ERROR reading from socket");
+  printf("%s\n",buffer);
+  close(sockfd);
+  return 0;
 }
 
 /**

@@ -8,17 +8,12 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <iknlib.h>
+#include "../lib/iknlib.hpp"
 
 using namespace std;
 
 void sendFile(std::string fileName, long fileSize, int outToClient);
 
-void error(const char *msg)
-{
-    perror(msg);
-    exit(1);
-}
 
 /**
  * main starter serveren og venter på en forbindelse fra en klient
@@ -38,12 +33,14 @@ int main(int argc, char *argv[])
      // Declarations
      int sockfd, newsockfd, portno;
      socklen_t clilen;
-     char buffer[256];
+     char buffer[BUFSIZE];
      struct sockaddr_in serv_addr, cli_addr;
      int n;
      if (argc < 2) {
-         fprintf(stderr,"ERROR, no port provided\n");
-         exit(1);
+         portno = PORT;
+     }
+     else{
+       portno = atoi(argv[1]);
      }
 
      //main starter serveren og venter på en forbindelse fra en klient
@@ -51,7 +48,7 @@ int main(int argc, char *argv[])
      if (sockfd < 0)
         error("ERROR opening socket");
      bzero((char *) &serv_addr, sizeof(serv_addr));
-     portno = atoi(argv[1]);
+
      serv_addr.sin_family = AF_INET;
      serv_addr.sin_addr.s_addr = INADDR_ANY;
      serv_addr.sin_port = htons(portno);
@@ -66,29 +63,24 @@ int main(int argc, char *argv[])
      if (newsockfd < 0)
           error("ERROR on accept");
 
+    //printf("client connected \n");
+
      // Læser filnavn som kommer fra klienten.
-     bzero(buffer,256);
-     n = read(newsockfd,buffer,255);
-     if (n < 0) error("ERROR reading from socket");
-     printf("Here is the message: %s\n",buffer);
-     n = write(newsockfd,"I got your message",18);
-     if (n < 0) error("ERROR writing to socket");
+     bzero(buffer,BUFSIZE);
+     printf("client connected \n");
+     readTextTCP(buffer, BUFSIZE, newsockfd);
+     printf("%s", buffer);
+     //if (n < 0) error("ERROR reading from socket");
+     printf("Here is the file name: %s\n",buffer);
+     writeTextTCP(newsockfd, "File name recieved");
 
-     //Undersøger om filens findes på serveren.
-     printf("%s \n", buffer);
-
-     char file[256];
-     sprintf(file, buffer);
-
-     FILE *fp = fopen(file, "r");
-     if (fp == NULL) error("ERROR opening file");
-     fseek(fp, 0, SEEK_END);
-     int fileLen=ftell(fp);
-     fseek(fp, 0, SEEK_SET);
-     printf("size: %d", fileLen);
+     // * Undersøger om filens findes på serveren.
+     long fileSize = check_File_Exists(buffer);
+     if (fileSize == 0) error("ERROR opening file");
+     printf("size: %l", fileSize);
      //Sender filstørrelsen tilbage til klienten (0 = Filens findes ikke)
      //Hvis filen findes sendes den nu til klienten
-      sendFile(buffer, fileLen, newsockfd);
+      sendFile(buffer, fileSize, newsockfd);
      //Luk forbindelsen til klienten
      close(newsockfd);
      close(sockfd);
