@@ -1,0 +1,106 @@
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using tcp;
+
+namespace tcp
+{
+	class file_client
+	{
+		/// The PORT
+		int PORT = 9000;
+			/// The BUFSIZE
+		const int BUFSIZE = 1000;
+		string localAddress = "10.0.0.1";
+
+		TcpClient client  = null;
+
+		private file_client (string[] args)
+		{
+					if(args.Length > 0)
+						PORT = int.Parse(args[0]);
+
+					if(args.Length > 1)
+						localAddress = args[1];
+
+
+					try
+					{
+
+							 client = new TcpClient(localAddress, PORT);
+
+
+							 System.Console.WriteLine("Enter message:");
+							 string message = System.Console.ReadLine();
+							 // Translate the passed message into ASCII and store it as a Byte array.
+							 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
+
+							 // Get a client stream for reading and writing.
+							//  Stream stream = client.GetStream();
+
+							 NetworkStream SocketStream = client.GetStream();
+
+							 // Send the message to the connected TcpServer.
+							tcp.LIB.writeTextTCP(SocketStream, message);
+
+							 Console.WriteLine("Sent: {0}", message);
+
+							 /*// Receive the TcpServer.response.
+
+							 // Buffer to store the response bytes.
+							 data = new Byte[256];
+
+							 // String to store the response ASCII representation.
+							 String responseData = String.Empty;
+
+							 // Read the first batch of the TcpServer response bytes.
+							 Int32 bytes = stream.Read(data, 0, data.Length);
+							 responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+							 Console.WriteLine("Received: {0}", responseData);
+*/
+							 // Close everything.
+							 SocketStream.Close();
+							 client.Close();
+				 }
+				 catch (ArgumentNullException e)
+				 {
+					 		Console.WriteLine("ArgumentNullException: {0}", e);
+				 }
+				 catch (SocketException e)
+				 {
+					 		Console.WriteLine("SocketException: {0}", e);
+				 }
+
+				 Console.WriteLine("\n Press Enter to continue...");
+				 Console.Read();
+
+			}
+
+		/// <summary>
+		/// Receives the file.
+		/// </summary>
+		/// <param name='fileName'>
+		/// File name.
+		/// </param>
+		/// <param name='io'>
+		/// Network stream for reading from the server
+		/// </param>
+		private void receiveFile (String fileName, NetworkStream io)
+		{
+			// TO DO Your own code
+		}
+
+		/// <summary>
+		/// The entry point of the program, where the program control starts and ends.
+		/// </summary>
+		/// <param name='args'>
+		/// The command-line arguments.
+		/// </param>
+		public static void Main (string[] args)
+		{
+			Console.WriteLine ("Client starts...");
+			new file_client(args);
+		}
+	}
+}

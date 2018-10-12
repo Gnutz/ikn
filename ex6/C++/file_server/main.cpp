@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <cstring>
 #include <strings.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -66,18 +67,23 @@ int main(int argc, char *argv[])
     //printf("client connected \n");
 
      // Læser filnavn som kommer fra klienten.
-     bzero(buffer,BUFSIZE);
      printf("client connected \n");
+      bzero(buffer,BUFSIZE);
+      printf("this is in the buffer:%s", buffer);
      readTextTCP(buffer, BUFSIZE, newsockfd);
-     printf("%s", buffer);
+     printf("this is in the buffer:%s", buffer);
      //if (n < 0) error("ERROR reading from socket");
-     printf("Here is the file name: %s\n",buffer);
+     printf("Here is the file name: %s",buffer);
      writeTextTCP(newsockfd, "File name recieved");
 
      // * Undersøger om filens findes på serveren.
-     long fileSize = check_File_Exists(buffer);
-     if (fileSize == 0) error("ERROR opening file");
-     printf("size: %l", fileSize);
+     char file[256];
+     snprintf(file, strlen(buffer), buffer);
+    long fileSize = check_File_Exists(&buffer);
+
+    //if (fileSize == 0) error("ERROR opening file");
+     printf("size: %ld bytes\n", fileSize);
+
      //Sender filstørrelsen tilbage til klienten (0 = Filens findes ikke)
      //Hvis filen findes sendes den nu til klienten
       sendFile(buffer, fileSize, newsockfd);
