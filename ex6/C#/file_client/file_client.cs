@@ -12,6 +12,7 @@ namespace tcp
 		int PORT = 9000;
 			/// The BUFSIZE
 		const int BUFSIZE = 1000;
+		Byte[] bytes = new Byte[BUFSIZE];
 		string localAddress = "10.0.0.1";
 
 		TcpClient client  = null;
@@ -34,7 +35,7 @@ namespace tcp
 							 System.Console.WriteLine("Enter message:");
 							 string message = System.Console.ReadLine();
 							 // Translate the passed message into ASCII and store it as a Byte array.
-							 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
+							//Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
 
 							 // Get a client stream for reading and writing.
 							//  Stream stream = client.GetStream();
@@ -46,22 +47,20 @@ namespace tcp
 
 							 Console.WriteLine("Sent: {0}", message);
 
-							 /*// Receive the TcpServer.response.
+							long fileSize = tcp.LIB.getFileSizeTCP(SocketStream);
+							if(fileSize != 0)
+							{
+								Console.WriteLine($"File length: {fileSize}");
+								string fileName = tcp.LIB.extractFileName(message);
+								Console.WriteLine($"Trying to receive file..");
+								receiveFile(fileName, SocketStream);
+							}
+							else{
+								Console.WriteLine($"File did not exist on sever. Closing connection..");
+								SocketStream.Close();
+ 							 client.Close();
+							}
 
-							 // Buffer to store the response bytes.
-							 data = new Byte[256];
-
-							 // String to store the response ASCII representation.
-							 String responseData = String.Empty;
-
-							 // Read the first batch of the TcpServer response bytes.
-							 Int32 bytes = stream.Read(data, 0, data.Length);
-							 responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-							 Console.WriteLine("Received: {0}", responseData);
-*/
-							 // Close everything.
-							 SocketStream.Close();
-							 client.Close();
 				 }
 				 catch (ArgumentNullException e)
 				 {
@@ -88,7 +87,18 @@ namespace tcp
 		/// </param>
 		private void receiveFile (String fileName, NetworkStream io)
 		{
-			// TO DO Your own code
+
+
+			string line = "";
+    	using (StreamWriter sw = new StreamWriter(fileName))
+      	{
+              while ((line = tcp.LIB.readTextTCP(io)) != null)
+              {
+                  sw.WriteLine(line);
+              }
+        }
+
+
 		}
 
 		/// <summary>

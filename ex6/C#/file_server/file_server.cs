@@ -13,6 +13,7 @@ namespace tcp
 		int PORT = 9000;
 			/// The BUFSIZE
 		const int BUFSIZE = 1000;
+		Char[] bytes = new Char[BUFSIZE];
 		IPAddress localAddress = IPAddress.Parse("10.0.0.1");
 
 
@@ -32,7 +33,7 @@ namespace tcp
 		    // Start listening for client requests.
 		    server.Start();
 
-				Byte[] bytes = new Byte[256];
+
       	String data = null;
 
       	// Enter the listening loop.
@@ -49,16 +50,26 @@ namespace tcp
 	        // Get a stream object for reading and writing
 	        NetworkStream SocketStream = client.GetStream();
 
-					data = tcp.LIB.readTextTCP(SocketStream);
+					string fileName = tcp.LIB.readTextTCP(SocketStream);
 
-					System.Console.WriteLine(data);
+					System.Console.WriteLine(fileName);
 
-					long fileSize = tcp.LIB.check_File_Exists(data);
+					long fileSize = tcp.LIB.check_File_Exists(fileName);
 
-					System.Console.WriteLine($"{fileSize}");
+					tcp.LIB.writeTextTCP(SocketStream, $"{fileSize}");
 
-					SocketStream.Close();
-					client.Close();
+					if(fileSize != 0)
+					{
+						Console.WriteLine($"Sending file..");
+						sendFile(fileName, fileSize, SocketStream);
+					}
+					else
+					{
+						Console.WriteLine($"File did not exist on sever. Closing connection..");
+						SocketStream.Close();
+						client.Close();
+					}
+
 
 
 				}
@@ -127,7 +138,32 @@ namespace tcp
 		/// </param>
 		private void sendFile (String fileName, long fileSize, NetworkStream io)
 		{
-			// TO DO Your own code
+			FileStream fileStream = new FileStream(
+      fileName, FileMode.OpenOrCreate,
+      FileAccess.ReadWrite, FileShare.None);
+
+			int offset = 0;
+
+			try
+			{
+			StreamReader sr = new StreamReader(fileName);
+			string toSend;
+
+			while(offset != fileSize){
+				offset += sr.Read(bytes, offset, BUFSIZE);
+				toSend = new string(bytes);
+				tcp.LIB.writeTextTCP(io, toSend);
+			}
+			tcp.LIB.writeTextTCP(io, "\0");
+
+			}
+			catch (Exception e)
+        {
+            // Let the user know what went wrong.
+            Console.WriteLine("The file could not be read:");
+            Console.WriteLine(e.Message);
+				}
+
 		}
 
 		/// <summary>
