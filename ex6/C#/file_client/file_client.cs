@@ -87,12 +87,15 @@ namespace tcp
 		/// </param>
 		private void receiveFile (String fileName, NetworkStream io)
 		{
+			FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate);
+			StreamWriter sw = new StreamWriter(fs);
+
 
 
 			string line = "";
-    	using (StreamWriter sw = new StreamWriter(fileName))
+    	using (sw = new StreamWriter(fileName))
       	{
-              while ((line = tcp.LIB.readTextTCP(io)) != null)
+              while ((line = tcp.LIB.readTextTCP(io)) != "\0")
               {
                   sw.WriteLine(line);
               }

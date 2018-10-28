@@ -34,11 +34,12 @@ class UDPClient
         UdpClient udpClient = new UdpClient();
         udpClient.Send(sendbuf, sendbuf.Length, ep);
 
-        Console.WriteLine("Message sent to the broadcast address");
+        Console.WriteLine($"Request {Command} sent to server at {serverAddress}, {PORT}");
 
         byte[] receivedData = udpClient.Receive(ref ep);
 
         String receivedLine = Encoding.ASCII.GetString(receivedData);
+        Console.WriteLine("The message received:");
         Console.WriteLine(receivedLine);
 
     }

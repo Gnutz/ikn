@@ -26,30 +26,33 @@ public class UDPServer
       else
         localAddress = IPAddress.Parse("10.0.0.1");
 
-        bool done = false;
+      Console.WriteLine("Server started..");
+
 
         udpListener = new UdpClient(PORT);
         udpClient = new IPEndPoint(IPAddress.Any,PORT);
+  
+
         byte[] bytes;
 
 
         try
         {
-            while (!done)
+            while (true)
             {
                 String receivedCommand = receiveClientCommand();
+              Console.WriteLine($"Client command received: {receivedCommand}");
 
-              /*  Console.WriteLine("Received broadcast from {0} :{1}",
-                    udpClient.ToString(),
-                    Encoding.ASCII.GetString(bytes,0,bytes.Length)); */
-
-                switch(receivedCommand.ToUpper())
+              switch(receivedCommand.ToUpper())
                 {
 
                   case "U":
+
+                    Console.WriteLine($"Sending content from /proc/uptime");
                     sendFileContentUDP("/proc/uptime");
                     break;
                   case "L":
+                    Console.WriteLine($"Sending content from /proc/loadavg");
                     sendFileContentUDP("/proc/loadavg");
                     break;
                 }
@@ -79,13 +82,12 @@ public class UDPServer
       FileStream fs = new FileStream(file, FileMode.Open);
       StreamReader s = new StreamReader(fs, Encoding.Default);
       string line =  s.ReadLine();
-      Console.WriteLine(line);
+      Console.WriteLine($"Content sent: {line}");
       s.Close();
       fs.Close();
 
 
      byte[] sendbuf = Encoding.ASCII.GetBytes(line);
-        //IPEndPoint ep = new IPEndPoint(, 11000);
 
         udpListener.Send(sendbuf, sendbuf.Length, udpClient);
     }
