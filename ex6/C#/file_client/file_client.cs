@@ -87,7 +87,7 @@ namespace tcp
 		/// </param>
 		private void receiveFile (String fileName, NetworkStream io)
 		{
-			FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate);
+			FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
 			StreamWriter sw = new StreamWriter(fs);
 
 

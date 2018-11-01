@@ -34,9 +34,6 @@ namespace tcp
 		    // Start listening for client requests.
 		    server.Start();
 
-
-      	String data = null;
-
       	// Enter the listening loop.
 
 	      	        System.Console.Write("Waiting for a connection... ");
@@ -46,8 +43,7 @@ namespace tcp
 	        TcpClient client = server.AcceptTcpClient();
 	        System.Console.WriteLine("Connected!");
 
-	        data = null;
-
+	        
 	        // Get a stream object for reading and writing
 	        NetworkStream SocketStream = client.GetStream();
 
@@ -96,7 +92,9 @@ namespace tcp
 		/// </param>
 		private void sendFile (String fileName, long fileSize, NetworkStream io)
 		{
-			FileStream fs = new FileStream(fileName, FileMode.Open);
+
+			 //our code
+			FileStream fs = new FileStream(fileName, FileMode.Open , FileAccess.Read);
       StreamReader sr = new StreamReader(fs, Encoding.Default);
 
 			int offset =	0;
@@ -121,6 +119,24 @@ namespace tcp
 
 				sr.Close();
 				fs.Close();
+
+
+		     /* var totalAmountSend = 0;
+
+		    var bytes = new byte[BUFSIZE];
+            var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+
+		    while (totalAmountSend < (int)fileSize)
+		    {
+		        var bytesRead = fs.Read(bytes, 0, BUFSIZE);
+
+		        io.Write(bytes, 0, bytesRead);
+		        totalAmountSend += bytesRead;
+
+		        Console.WriteLine(bytesRead);
+		    }
+
+            fs.Close(); */
 
 		}
 
