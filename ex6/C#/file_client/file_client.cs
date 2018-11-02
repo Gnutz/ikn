@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Collections;
 using tcp;
 
 namespace tcp
@@ -12,7 +13,6 @@ namespace tcp
 		int PORT = 9000;
 			/// The BUFSIZE
 		const int BUFSIZE = 1000;
-		Byte[] bytes = new Byte[BUFSIZE];
 		string localAddress = "10.0.0.1";
 
 		TcpClient client  = null;
@@ -53,7 +53,7 @@ namespace tcp
 								Console.WriteLine($"File length: {fileSize}");
 								string fileName = tcp.LIB.extractFileName(message);
 								Console.WriteLine($"Trying to receive file..");
-								receiveFile(fileName, SocketStream);
+								receiveFile(fileName, SocketStream, fileSize);
 							}
 							else{
 								Console.WriteLine($"File did not exist on sever. Closing connection..");
@@ -85,22 +85,16 @@ namespace tcp
 		/// <param name='io'>
 		/// Network stream for reading from the server
 		/// </param>
-		private void receiveFile (String fileName, NetworkStream io)
+		private void receiveFile (String fileName, NetworkStream io, long fileSize)
 		{
-			FileStream fs = new FileStream(fileName, FileMode.OpenOrCreate, FileAccess.Write);
-			StreamWriter sw = new StreamWriter(fs);
 
+			FileStream fsw = File.OpenWrite(fileName);
 
-
-			string line = "";
-    	using (sw = new StreamWriter(fileName))
-      	{
-              while ((line = tcp.LIB.readTextTCP(io)) != "\0")
-              {
-                  sw.WriteLine(line);
-              }
-        }
-
+			while(fsw.Length < fileSize){
+						byte[] bytes = new byte[1000];
+						io.Read(bytes, 0, bytes.Length);
+						fsw.Write(bytes, 0, bytes.Count);
+					}
 
 		}
 
