@@ -27,54 +27,55 @@ namespace tcp
 				localAddress = IPAddress.Parse(args[1]);
 
 			TcpListener server = null;
-
-			try
-		  {
-		  	server = new TcpListener(localAddress, PORT);
-		    // Start listening for client requests.
-		    server.Start();
-
-      	// Enter the listening loop.
-
-	      	        System.Console.Write("Waiting for a connection... ");
-
-	        // Perform a blocking call to accept requests.
-	        // You could also user server.AcceptSocket() here.
-	        TcpClient client = server.AcceptTcpClient();
-	        System.Console.WriteLine("Connected!");
-
-
-	        // Get a stream object for reading and writing
-	        NetworkStream SocketStream = client.GetStream();
-
-					string fileName = tcp.LIB.readTextTCP(SocketStream);
-
-					System.Console.WriteLine(fileName);
-
-					long fileSize = tcp.LIB.check_File_Exists(fileName);
-
-					tcp.LIB.writeTextTCP(SocketStream, $"{fileSize}");
-
-					if(fileSize != 0)
+				server = new TcpListener(localAddress, PORT);
+				try{
+					while (true)
 					{
-						Console.WriteLine($"Sending file..");
-						sendFile(fileName, fileSize, SocketStream);
-					}
-					else
-					{
-						Console.WriteLine($"File did not exist on sever. Closing connection..");
-						SocketStream.Close();
-						client.Close();
+						server.Start();
+
+		      	// Enter the listening loop.
+
+			      	        System.Console.Write("Waiting for a connection... ");
+
+			        // Perform a blocking call to accept requests.
+			        // You could also user server.AcceptSocket() here.
+			        TcpClient client = server.AcceptTcpClient();
+			        System.Console.WriteLine("Connected!");
+
+
+			        // Get a stream object for reading and writing
+			        NetworkStream SocketStream = client.GetStream();
+
+							string fileName = tcp.LIB.readTextTCP(SocketStream);
+
+							System.Console.WriteLine(fileName);
+
+							long fileSize = tcp.LIB.check_File_Exists(fileName);
+
+							tcp.LIB.writeTextTCP(SocketStream, $"{fileSize}");
+
+							if(fileSize != 0)
+							{
+								Console.WriteLine($"Sending file..");
+								sendFile(fileName, fileSize, SocketStream);
+							}
+							else
+							{
+								Console.WriteLine($"File did not exist on sever. Closing connection..");
+								SocketStream.Close();
+								client.Close();
+							}
+
+						}
 					}
 
-				}
-				catch(SocketException e){
-					Console.WriteLine("SocketException: {0}", e);
-				}
-				finally{
-					// Stop listening for new clients.
- 	       server.Stop();
-				}
+			catch(SocketException e){
+				Console.WriteLine("SocketException: {0}", e);
+			}
+			finally{
+				// Stop listening for new clients.
+			 server.Stop();
+		 }
 
 			}
 
@@ -82,13 +83,14 @@ namespace tcp
 		{
 			FileStream fsr = File.OpenRead(fileName);
 			long offset = 0;
+			long bytesRead;
 			while (offset < fileSize)
 					{
 						byte[] bytes = new byte[1000];
-						offset += (long) fsr.Read(bytes, 0,bytes.Length);
-						io.Write(bytes, 0, bytes.Length);
+						bytesRead = (long) fsr.Read(bytes, 0,bytes.Length);
+						io.Write(bytes, 0, (int) bytesRead);
+						offset += bytesRead;
 					}
-					io.WriteByte(0);
 		}
 
 		public static void Main (string[] args)

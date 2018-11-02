@@ -32,7 +32,7 @@ namespace tcp
 							 client = new TcpClient(localAddress, PORT);
 
 
-							 System.Console.WriteLine("Enter message:");
+							 System.Console.WriteLine("Enter Filename (path):");
 							 string message = System.Console.ReadLine();
 							 // Translate the passed message into ASCII and store it as a Byte array.
 							//Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
@@ -89,11 +89,12 @@ namespace tcp
 		{
 
 			FileStream fsw = File.OpenWrite(fileName);
+			long bytesRead = 0;
 
 			while(fsw.Length < fileSize){
 						byte[] bytes = new byte[1000];
-						io.Read(bytes, 0, bytes.Length);
-						fsw.Write(bytes, 0, bytes.Count);
+						bytesRead = io.Read(bytes, 0, bytes.Length);
+						fsw.Write(bytes, 0, (int) bytesRead);
 					}
 
 		}
