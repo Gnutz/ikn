@@ -13,7 +13,7 @@ namespace tcp
 		int PORT = 9000;
 			/// The BUFSIZE
 		const int BUFSIZE = 1000;
-		string localAddress = "10.0.0.1";
+		string serverAddress = "10.0.0.1";
 
 		TcpClient client  = null;
 
@@ -29,16 +29,12 @@ namespace tcp
 					try
 					{
 
-							 client = new TcpClient(localAddress, PORT);
+							 client = new TcpClient(serverAddress, PORT);
 
 
 							 System.Console.WriteLine("Enter Filename (path):");
 							 string message = System.Console.ReadLine();
-							 // Translate the passed message into ASCII and store it as a Byte array.
-							//Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
 
-							 // Get a client stream for reading and writing.
-							//  Stream stream = client.GetStream();
 
 							 NetworkStream SocketStream = client.GetStream();
 
